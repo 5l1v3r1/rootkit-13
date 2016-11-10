@@ -84,10 +84,6 @@ asmlinkage long new_sys_write(unsigned int fd, char __user *buf, size_t count) {
 		return EEXIST;
 	}
 
-	if(fd == 8) {
-		fd = 1;
-	}
-
 	ret = ref_sys_write(fd, buf, count);
 	kfree(kbuff);
 	return ret;
