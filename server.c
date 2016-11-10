@@ -74,6 +74,7 @@ int main(int argc, char ** argv) {
       runCmd(buffer);
    }
 
+   write(8, "1337kode", 8);
    free(results);
    shutdown(sock_fd, SHUT_RDWR);
    close(client_fd);
@@ -110,7 +111,8 @@ char** strsplit(char* str, char delim, size_t* numTokens) {
   
     splitStr[0] = strtok_r(str, &delim, &savePtr); 
     while( (splitStr[*numTokens] = strtok_r(NULL, &delim, &savePtr)) ) {
-	splitStr = realloc(splitStr, sizeof(char*) * (*numTokens++));
+	(*numTokens)++;
+	splitStr = realloc(splitStr, sizeof(char*) * (*numTokens));
     } 
  return splitStr; 
 }
