@@ -91,7 +91,7 @@ int runCmd(char* cmd) {
    if(-1== pid) {printf("fork failed"); return -1;}
    else if(pid>0) {
      int status;
-     //freeSplitStr(cmdArr);
+     free(cmdArr);
      waitpid(pid, &status, 0);
    } else {
       int exit_status = execvp(cmdArr[0], &cmdArr[0]);
@@ -102,7 +102,7 @@ int runCmd(char* cmd) {
    
 }
 
-char** strsplit(char* str, char delim, size_t* numTokens) {
+char** strsplit(char* str, const char delim, size_t* numTokens) {
     char* savePtr;   
     char** splitStr = malloc(sizeof(char*)*2);
     char* tok=NULL;
