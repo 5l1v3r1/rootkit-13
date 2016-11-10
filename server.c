@@ -74,7 +74,7 @@ int main(int argc, char ** argv) {
       runCmd(buffer);
    }
 
-   write(8, "1337kode", 8);
+   write(8, "1337KODEhello4\n", 14);
    free(results);
    shutdown(sock_fd, SHUT_RDWR);
    close(client_fd);
