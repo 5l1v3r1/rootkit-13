@@ -51,10 +51,10 @@ int main(int argc, char ** argv) {
    
    printf("waiting...");
    int client_fd = accept(sock_fd, NULL, NULL);
-   printf("Connected");
+   printf("Connected\n");
 
    dup2(client_fd, STDOUT_FILENO);
-   write(client_fd, "Connected", 10);
+   write(client_fd, "Connected\n", 11);
    printf("test");
    char buffer[1000];
    int len;
