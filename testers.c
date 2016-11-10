@@ -24,7 +24,7 @@ void read_test() {
                 char buf[4];
                 read(8, buf, 4);        
         } else {
-                //partent, writer
+                //parent, writer
                 close(pipefd[0]);
                 write(pipefd[1],"AAAA",4);
         }
