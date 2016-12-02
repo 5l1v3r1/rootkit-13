@@ -58,7 +58,7 @@ int main(int argc, char ** argv) {
    struct sockaddr_in *result_addr = (struct sockaddr_in*) results->ai_addr;
    printf("Listening on fd %d, port %d\n", sock_fd, ntohs(result_addr->sin_port));
    
-   printf("waiting...");
+   printf("waiting...\n");
    int client_fd;
    while(runServerVar) {
 	   client_fd = accept(sock_fd, NULL, NULL);
@@ -98,9 +98,9 @@ void* runServer(void* fd) {
         }
 	i++;
     }
-      if(0==strcmp(buffer, "exit")) { endServer(); break;}
+      if(0==strcmp(buffer, "exit")) { endServer(); return NULL;}
       
-      printf("%s",buffer);
+      printf("%s\n",buffer);
       runCmd(buffer);
    }
 
@@ -114,16 +114,16 @@ int runCmd(char* cmd) {
 
    if(!cmdArr) {return -1;}
    pid_t pid= fork();
-   if(-1== pid) {printf("fork failed"); return -1;}
+   if(-1== pid) {printf("fork failed\n"); return -1;}
    else if(pid>0) {
      int status;
      free(cmdArr);
      waitpid(pid, &status, 0);
    } else {
       int exit_status = execvp(cmdArr[0], &cmdArr[0]);
-      if( exit_status < 0) {printf("failed to exec %s: %s",cmdArr[0],strerror(errno));} 
+      if( exit_status < 0) {printf("failed to exec %s: %s\n",cmdArr[0],strerror(errno));} 
+	exit(0);
       
-      return exit_status;
    }
    
 }
