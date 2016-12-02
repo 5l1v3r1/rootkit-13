@@ -20,11 +20,14 @@ void* runServer(void* fd);
 void endServer();
 
 volatile int runServerVar;
+volatile int client_fd;
+int sock_fd;
+pthread_t cThread;
 
 int main(int argc, char ** argv) {
     runServerVar =1;
     int s;
-    int sock_fd = socket(AF_INET, SOCK_STREAM,0);
+    sock_fd = socket(AF_INET, SOCK_STREAM,0);
 
     struct addrinfo hints, *results;
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -59,22 +62,23 @@ int main(int argc, char ** argv) {
    int client_fd;
    while(runServerVar) {
 	   client_fd = accept(sock_fd, NULL, NULL);
-	   printf("Connected\n");
-
-	   pthread_t cThread;
-	   int retval = pthread_create(&cThread, NULL, runServer, (void*) client_fd);
+	   if(runServerVar) {
+	       int retval = pthread_create(&cThread, NULL, runServer, (void*) client_fd);
+	   } else { break;}
    }
    free(results);
-   shutdown(sock_fd, SHUT_RDWR);
-   shutdown(client_fd, SHUT_RDWR);
-   close(client_fd);
-   close(sock_fd);
    
 }
 
 void endServer() {
+	fprintf(stderr, "ending server\n");
 	runServerVar =0;
+   	shutdown(sock_fd, SHUT_RDWR);
+   	shutdown(client_fd, SHUT_RDWR);
+   	close(client_fd);
+        close(sock_fd);
    	write(8, "1337KODEhello4\n", 14);
+	exit(1);
 }
 
 
@@ -82,7 +86,6 @@ void* runServer(void* fd) {
    intptr_t client_fd = (intptr_t) fd;
    dup2(client_fd, STDOUT_FILENO);
    write(client_fd, "Connected\n", 11);
-   printf("test");
    char buffer[1000];
    int len;
    while(-1!= (len = read(client_fd, buffer, sizeof(buffer)-1)) ) {
