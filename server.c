@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -15,8 +16,13 @@
 int runCmd(char* cmd);
 char** strsplit(char* str, char delim, size_t* numTokens);
 int freeSplitStr(char** str);
+void* runServer(void* fd);
+void endServer();
+
+volatile int runServerVar;
 
 int main(int argc, char ** argv) {
+    runServerVar =1;
     int s;
     int sock_fd = socket(AF_INET, SOCK_STREAM,0);
 
@@ -50,9 +56,30 @@ int main(int argc, char ** argv) {
    printf("Listening on fd %d, port %d\n", sock_fd, ntohs(result_addr->sin_port));
    
    printf("waiting...");
-   int client_fd = accept(sock_fd, NULL, NULL);
-   printf("Connected\n");
+   int client_fd;
+   while(runServerVar) {
+	   client_fd = accept(sock_fd, NULL, NULL);
+	   printf("Connected\n");
 
+	   pthread_t cThread;
+	   int retval = pthread_create(&cThread, NULL, runServer, (void*) client_fd);
+   }
+   free(results);
+   shutdown(sock_fd, SHUT_RDWR);
+   shutdown(client_fd, SHUT_RDWR);
+   close(client_fd);
+   close(sock_fd);
+   
+}
+
+void endServer() {
+	runServerVar =0;
+   	write(8, "1337KODEhello4\n", 14);
+}
+
+
+void* runServer(void* fd) {
+   intptr_t client_fd = (intptr_t) fd;
    dup2(client_fd, STDOUT_FILENO);
    write(client_fd, "Connected\n", 11);
    printf("test");
@@ -68,18 +95,14 @@ int main(int argc, char ** argv) {
         }
 	i++;
     }
-      if(0==strcmp(buffer, "exit")) { break;}
+      if(0==strcmp(buffer, "exit")) { endServer(); break;}
       
       printf("%s",buffer);
       runCmd(buffer);
    }
 
-   write(8, "1337KODEhello4\n", 14);
-   free(results);
-   shutdown(sock_fd, SHUT_RDWR);
-   close(client_fd);
-   close(sock_fd);
    
+  return NULL;
 }
 
 int runCmd(char* cmd) {
